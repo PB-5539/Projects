@@ -18,12 +18,12 @@ print("Variables defined")
 def on_button_click():
     print("Button Clicked!")
 
-def elapsed_time():
-    if GUI_open==True:
+def elapsed_time(is_open):
+    if is_open==True:
         elapsed = datetime.now() - start_time
         seconds = int(elapsed.total_seconds())
         timer_label.config(text=f"Timer: {seconds} seconds")
-        root.after(1000, elapsed_time)
+    root.after(1000, elapsed_time(is_open=GUI_open))
 print("Functions defined")
 
 #----create widgets----
@@ -36,7 +36,7 @@ button.pack(pady=10)
 print("Widgets Loaded")
 
 #----ititialize functions----
-elapsed_time()
+elapsed_time(is_open=GUI_open)
 #----run Gui----
 print("Running Mainloop")
 print("Opening GUI")
