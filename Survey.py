@@ -12,18 +12,30 @@ print("GUI Loaded")
 
 #----define variables----
 GUI_open = False
+after_id = None
 print("Variables defined")
 
 #----define functions----
 def on_button_click():
     print("Button Clicked!")
 
-def elapsed_time(is_open):
-    if is_open==True:
+def elapsed_time():
+    global GUI_open, after_id
+    if GUI_open:
         elapsed = datetime.now() - start_time
         seconds = int(elapsed.total_seconds())
         timer_label.config(text=f"Timer: {seconds} seconds")
-    root.after(1000, elapsed_time(is_open=GUI_open))
+        after_id = root.after(1000, elapsed_time)
+
+def on_close():
+    global GUI_open, after_id
+    GUI_open = False
+    if after_id is not None:
+        try:
+            root.after_cancel(after_id)
+        except tk.TclError:
+            pass
+    root.destroy()
 print("Functions defined")
 
 #----create widgets----
@@ -36,11 +48,12 @@ button.pack(pady=10)
 print("Widgets Loaded")
 
 #----ititialize functions----
-elapsed_time(is_open=GUI_open)
+GUI_open = True
+elapsed_time()
 #----run Gui----
 print("Running Mainloop")
 print("Opening GUI")
-GUI_open = True
+root.protocol("WM_DELETE_WINDOW", on_close)
 root.mainloop()
 #----end of file----
 GUI_open = False
