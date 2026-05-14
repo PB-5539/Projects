@@ -2,11 +2,14 @@
 #5/13/2026
 #a simple task tracking program
 
+import json
+
 def main():
     user_input = ''
-    tasks = [{"name":"placeholder", "priority":'1', "status":False}, {"name":"placeholder2", "priority":'2', "status":True}] #placeholders for development purposes
+    tasks = []
     exit=False
     welcome()
+    tasks = load_save(tasks)
     while not exit:
         user_input = displayMenu(user_input)
         if user_input == "1":
@@ -20,8 +23,10 @@ def main():
             complete_task(tasks)
         elif user_input == "4":
             print("selected option: 4. delete task")
+            delete_task(tasks)
         elif user_input == "5":
             print("selected option: 5. exit")
+            save(tasks)
             exit=True
 
 def displayMenu(user_input):
@@ -79,31 +84,108 @@ def view_tasks(tasks):
             _orX = "_"
         print(f"[{_orX}]{i+1}. {name} | Prioity: {priority}")
 
-def filter_tasks(tasks):
-    filtered = []
-    for i in range(0, len(tasks)):
-        task_val = tasks[i]        
-        status = task_val["status"]
-        if not status:
-            filtered.append(tasks[i])
-    return filtered
-
 
 def complete_task(tasks):
     print()
+    from_user = 0
     print("please select a task to complete")
-    filtered_tasks = filter_tasks(tasks)
     print("------------------------")
-    for i in range(len(filtered_tasks)):
-        taask_val = filtered_tasks[i]
-        name = taask_val["name"]
-        priority = taask_val["priority"]
-        status = taask_val["status"]
+    for i in range(len(tasks)):
+        task_val = tasks[i]
+        name = task_val["name"]
+        priority = task_val["priority"]
+        status = task_val["status"]
         _orX = ""
         if status:
             _orX = "X"
         else:
             _orX = "_"
-        print(f"[{_orX}]{i+1}. {name} | Prioity: {priority}")
+        print(f"[{_orX}]{i+1}. {name} | Priority: {priority}")
+    print("------------------------")
+    from_user = int(input("selection: "))
+    while not (0 < from_user <= len(tasks)):
+        from_user = int(input("invalid selection, please enter a valid task number: "))
+    from_user = from_user - 1
+    task_dict = tasks[from_user]
+    task_dict["status"] = True
+    tasks[from_user] = task_dict        
 
+
+def delete_task(tasks):
+    print()
+    from_user = 0
+    print("please select a task to delete")
+    print("------------------------")
+    for i in range(len(tasks)):
+        task_val = tasks[i]
+        name = task_val["name"]
+        priority = task_val["priority"]
+        status = task_val["status"]
+        _orX = ""
+        if status:
+            _orX = "X"
+        else:
+            _orX = "_"
+        print(f"[{_orX}]{i+1}. {name} | Priority: {priority}")
+    print("------------------------")
+    try:
+        from_user = int(input("selection: "))
+    except:
+        from_user = int(input("invalid selection, please enter a valid task number: "))
+    while not (0 < from_user <= len(tasks)):
+        try:
+            from_user = int(input("invalid selection, please enter a valid task number: "))
+        except:
+            from_user = int(input("invalid selection, please enter a valid task number: "))
+    from_user = from_user - 1
+    tasks.pop(from_user) 
+
+
+def load_saved_tasks():
+    try:
+        with open("taskker_saved_tasks.json", "r", encoding="utf-8") as f:
+            temp_tasks = json.load(f)
+        return temp_tasks
+    except:
+        print("no saves availible, please select option 3.")
+
+def save(tasks):
+    data=tasks
+    with open("taskker_saved_tasks.json", "w", encoding="utf-8") as f:
+        json.dump(data, f)
+
+
+def load_save(tasks):
+    load = False
+    while not load:
+        temp_tasks=load_saved_tasks()
+        print("---------load--------")
+        print("1. load saved tasks")
+        print("2. list saved tasks")
+        print("3. clear saved tasks")
+        print("---------------------")
+        selection=input("selection: ")
+        while selection not in ["1", "2", "3"]:
+            print()
+            selection=input("invalid selection, please re-enter the selection number: ")
+            print()
+        while selection == "2":
+            if selection == "2":
+                view_tasks(temp_tasks)
+                print()
+                selection = input("would you like to load these saved tasks? (y/n): ")
+                while selection not in ["n", "y"]:
+                    selection = input("invalid selection, please enter 'y' or 'n': ")
+                if selection == "y":
+                    tasks=temp_tasks
+                    load=True
+                elif selection == "n":
+                    load = False
+        if selection == "1":
+            tasks=temp_tasks
+            load=True
+        elif selection == "3":
+            tasks=[]
+            load=True
+    return tasks
 main()
